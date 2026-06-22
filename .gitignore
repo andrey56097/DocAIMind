@@ -23,9 +23,6 @@ dist-ssr
 supabase/.temp
 supabase/.branches
 
-# Claude Code
-.claude/
-
 # Editor directories and files
 .vscode/*.log
 .vscode/*.local.*
