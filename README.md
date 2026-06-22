@@ -9,6 +9,8 @@
     <img src="https://img.shields.io/badge/OpenAI-412991?style=flat&logo=openai&logoColor=white" alt="OpenAI"/>
     <img src="https://img.shields.io/badge/Deno-000000?style=flat&logo=deno&logoColor=white" alt="Deno"/>
     <img src="https://img.shields.io/badge/pgvector-336791?style=flat&logo=postgresql&logoColor=white" alt="pgvector"/>
+    <img src="https://img.shields.io/badge/Vitest-6E9F18?style=flat&logo=vitest&logoColor=white" alt="Vitest"/>
+    <img src="https://img.shields.io/badge/Playwright-45BA4B?style=flat&logo=playwright&logoColor=white" alt="Playwright"/>
   </p>
 </div>
 
@@ -43,6 +45,8 @@ Ask question  →  Embed question  →  Similarity search  →  GPT answer + sou
 | **OpenAI** | `text-embedding-3-small` for embeddings, `gpt-4o-mini` for answering |
 | **pdfjs-dist** | PDF text extraction in the browser |
 | **Deno** | Runtime for Supabase edge functions |
+| **Vitest** | Unit testing framework |
+| **Playwright** | End-to-end browser testing |
 
 ---
 
@@ -70,6 +74,10 @@ docmind/
 │   ├── state.ts                  # Global application state
 │   ├── dom.ts                    # DOM element references
 │   ├── embeddings.ts             # Embedding utilities + cosine similarity
+│   ├── __tests__/                # Unit tests (Vitest)
+│   │   ├── embeddings.test.ts    #   simpleEmbedding, cosineSimilarity, chunkText
+│   │   ├── pdf.test.ts           #   cleanText
+│   │   └── types.test.ts         #   type shape validation
 │   ├── handlers_init.ts          # Shared initialization (fetch & render docs)
 │   ├── handlers/
 │   │   ├── index.ts              # Event listener wiring
@@ -83,6 +91,10 @@ docmind/
 │   │   └── pdf.ts                # PDF text extraction
 │   └── ui/
 │       └── index.ts              # UI rendering (documents, messages, progress)
+├── e2e/
+│   ├── playwright.config.ts      # Playwright E2E config
+│   └── app.e2e.ts               # E2E smoke tests
+├── vitest.config.ts             # Vitest configuration
 └── supabase/
     ├── config.toml               # Edge function configuration
     ├── seed.sql                  # Verification queries
@@ -137,7 +149,7 @@ supabase migration up
 
 ## Features
 
-- **📄 PDF upload** — drag-and-drop or select files (up to 10 MB)
+- **📄 PDF upload** — select files (up to 10 MB)
 - **⚡ Automatic chunking & embedding** — text is split into semantic chunks, embedded via OpenAI, and stored with pgvector
 - **🔍 Semantic search** — questions are matched against document chunks using cosine similarity
 - **🤖 AI answers** — GPT-4o-mini answers with source citations
@@ -153,6 +165,40 @@ supabase migration up
 | `npm run dev` | Start Vite dev server |
 | `npm run build` | Type-check and build for production |
 | `npm run preview` | Preview production build |
+| `npm test` | Run unit tests (Vitest) |
+| `npm run test:watch` | Run unit tests in watch mode |
+| `npm run test:ui` | Run unit tests with Vitest UI dashboard |
+| `npm run test:e2e` | Run E2E tests (Playwright) |
+
+---
+
+## Testing
+
+DocAIMind includes both **unit tests** and **end-to-end tests**.
+
+### Unit tests (Vitest)
+
+```bash
+npm test              # run once
+npm run test:watch    # watch mode
+npm run test:ui       # visual dashboard
+```
+
+**Test coverage:**
+
+| Test file | What it covers |
+|---|---|
+| `src/__tests__/embeddings.test.ts` | `simpleEmbedding` (dimensions, normalisation, determinism), `cosineSimilarity` (identity, orthogonality, symmetry), `chunkText` (sentence/paragraph boundaries, chunk size) |
+| `src/__tests__/pdf.test.ts` | `cleanText` (ASCII filtering, stripping non-printable characters, newline preservation) |
+| `src/__tests__/types.test.ts` | TypeScript interface shapes (`AppDocument`, `AppState`, `AnswerResult`, `Source`, `UsageInfo`) |
+
+### E2E tests (Playwright)
+
+```bash
+npm run test:e2e
+```
+
+Tests run against the Vite dev server automatically. Covers: page load, file input, sidebar toggle, delete button visibility, usage stats display. Run `npx playwright test --config e2e/playwright.config.ts` for headed mode. |
 
 ---
 
