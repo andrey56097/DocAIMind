@@ -1,0 +1,13 @@
+
+[functions.process-document]
+enabled = true
+verify_jwt = false
+import_map = "./functions/process-document/deno.json"
+entrypoint = "./functions/process-document/index.ts"
+
+[functions.ask-question]
+enabled = true
+verify_jwt = false
+import_map = "./functions/ask-question/deno.json"
+entrypoint = "./functions/ask-question/index.ts"
+

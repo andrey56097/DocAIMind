@@ -4,37 +4,123 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/webstorm-icon-logo.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WS playground</title>
+  <title>DocMind — AI Knowledge Base</title>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<header class="logo">
-  <a href="https://www.jetbrains.com/webstorm/">
-    <img src="/webstorm-logo.svg" alt="WebStorm logo" width="344"
-         height="90">
-  </a>
-</header>
-<main id="app">
-  <h1 class="title">
-    Thank you for trying it out. <br /> Your first project is up and running
-    now.
-  </h1>
-  <section class="counter">
-    <div class="counter-info">
-      <p class="counter-text">Counter is</p>
-      <p class="counter-value" id="counter-value"></p>
+<div id="app">
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <h1 class="sidebar-title">📚 DocMind</h1>
+      <p class="sidebar-subtitle">AI Knowledge Base</p>
     </div>
-    <div class="counter-interaction">
-      <button id="increaseByOne" type="button">+1</button>
-      <button id="increaseByTwo" type="button">+2</button>
-      <button id="decreaseByOne" type="button">-1</button>
-      <button id="decreaseByTwo" type="button">-2</button>
+
+    <!-- Upload Section -->
+    <div class="upload-section">
+      <label class="upload-btn" for="file-input">
+        <span class="upload-icon">+</span>
+        Upload PDF
+      </label>
+      <input type="file" id="file-input" accept=".pdf" hidden />
+      <div id="upload-progress" class="upload-progress hidden">
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+        <span class="progress-text">Processing...</span>
+      </div>
     </div>
-  </section>
-</main>
-<footer class="technologies">
-  <img src="/technologies.svg" alt="List of supported technologies">
-</footer>
+
+    <!-- Documents List -->
+    <div class="documents-section">
+      <div class="documents-header">
+        <h2 class="section-title">Documents</h2>
+        <button id="delete-all-btn" class="delete-all-btn" title="Delete all documents">✕ All</button>
+      </div>
+      <div id="documents-list" class="documents-list">
+        <p class="empty-state" id="empty-state">No documents yet.<br/>Upload a PDF to get started.</p>
+      </div>
+    </div>
+
+    <!-- Usage Stats -->
+    <div class="usage-section" id="usage-section">
+      <h2 class="section-title">Usage</h2>
+      <div class="usage-stats" id="usage-stats">
+        <div class="stat-row">
+          <span class="stat-label">Tokens</span>
+          <span class="stat-value" id="total-tokens">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Cost</span>
+          <span class="stat-value" id="total-cost">$0.00</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Questions</span>
+          <span class="stat-value" id="question-count">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+      <p>Powered by Supabase + OpenAI</p>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main id="main-content">
+    <!-- Chat Header -->
+    <header class="chat-header">
+      <div class="chat-header-info">
+        <h2 class="chat-title">Ask your documents</h2>
+        <p class="chat-subtitle" id="chat-subtitle">Upload a PDF and ask questions about its content</p>
+      </div>
+      <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar">
+        <span class="toggle-icon">☰</span>
+      </button>
+    </header>
+
+    <!-- Messages -->
+    <div id="messages-container" class="messages-container">
+      <div class="welcome-message" id="welcome-message">
+        <div class="welcome-icon">🤖</div>
+        <h3>Welcome to DocMind!</h3>
+        <p>Upload a PDF document using the sidebar, then ask me anything about its content.</p>
+        <div class="welcome-tips">
+          <div class="tip">
+            <span class="tip-icon">📄</span>
+            <span>Upload PDFs via sidebar</span>
+          </div>
+          <div class="tip">
+            <span class="tip-icon">❓</span>
+            <span>Ask questions in natural language</span>
+          </div>
+          <div class="tip">
+            <span class="tip-icon">🔍</span>
+            <span>AI searches and answers from your documents</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="input-area">
+      <form id="question-form" class="question-form">
+        <input
+          type="text"
+          id="question-input"
+          class="question-input"
+          placeholder="Ask a question about your documents..."
+          disabled
+        />
+        <button type="submit" id="send-button" class="send-button" disabled>
+          <span class="send-icon">➤</span>
+        </button>
+      </form>
+      <p class="input-hint">AI answers based on your uploaded documents</p>
+    </div>
+  </main>
+</div>
 <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
