@@ -1,5 +1,5 @@
 /**
- * DocMind — Event handlers entry point
+ * DocAIMind — Event handlers entry point
  *
  * Wires up all DOM event listeners and re-exports handler functions.
  */

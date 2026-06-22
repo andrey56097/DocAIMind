@@ -1,4 +1,4 @@
-/** DocMind — embedding utilities */
+/** DocAIMind — embedding utilities */
 
 const EMBEDDING_DIMS = 1536; // matches OpenAI text-embedding-3-small
 

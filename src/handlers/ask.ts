@@ -1,5 +1,5 @@
 /**
- * DocMind — Ask handler
+ * DocAIMind — Ask handler
  */
 
 import { state } from "../state";

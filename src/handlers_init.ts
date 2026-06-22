@@ -1,4 +1,4 @@
-/** DocMind — shared init helper used by handlers + main.ts */
+/** DocAIMind — shared init helper used by handlers + main.ts */
 
 import { state } from "./state";
 import { dom } from "./dom";

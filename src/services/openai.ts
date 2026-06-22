@@ -1,5 +1,5 @@
 /**
- * DocMind — OpenAI client
+ * DocAIMind — OpenAI client
  *
  * Handles embedding generation and chat completion via the OpenAI REST API.
  */

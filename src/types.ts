@@ -1,4 +1,4 @@
-/** DocMind — shared types */
+/** DocAIMind — shared types */
 
 export interface AppDocument {
   id: string;

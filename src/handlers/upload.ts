@@ -1,5 +1,5 @@
 /**
- * DocMind — Upload handler
+ * DocAIMind — Upload handler
  */
 
 import { uploadFileToStorage } from "../services/supabase";

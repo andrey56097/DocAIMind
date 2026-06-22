@@ -1,4 +1,4 @@
-/** DocMind — application state */
+/** DocAIMind — application state */
 
 import type { AppState } from "./types";
 

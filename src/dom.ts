@@ -1,4 +1,4 @@
-/** DocMind — DOM element references */
+/** DocAIMind — DOM element references */
 
 const $ = (id: string) => document.getElementById(id)!;
 

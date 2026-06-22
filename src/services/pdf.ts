@@ -1,5 +1,5 @@
 /**
- * DocMind — PDF text extraction
+ * DocAIMind — PDF text extraction
  *
  * Uses pdfjs-dist to extract text content from PDF files.
  */

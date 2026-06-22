@@ -1,5 +1,5 @@
 /**
- * DocMind — UI rendering
+ * DocAIMind — UI rendering
  */
 
 import type { Source } from "../types";

@@ -1,5 +1,5 @@
 /**
- * DocMind — Supabase REST client
+ * DocAIMind — Supabase REST client
  *
  * Generic helpers for interacting with the Supabase REST API
  * (used instead of the supabase-js SDK).

@@ -1,5 +1,5 @@
 /**
- * DocMind — AI Knowledge Base
+ * DocAIMind — AI Knowledge Base
  * Entry point
  */
 

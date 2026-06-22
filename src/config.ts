@@ -1,4 +1,4 @@
-/** DocMind — configuration */
+/** DocAIMind — configuration */
 
 // ============================================================
 // All config comes from environment variables (VITE_ prefix).
@@ -19,5 +19,5 @@ export const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY ?? "";
 
 export const ENV = import.meta.env.VITE_ENV ?? "development";
 
-export const APP_NAME = "DocMind";
+export const APP_NAME = "DocAIMind";
 export const APP_DESCRIPTION = "AI Knowledge Base";

@@ -1,5 +1,5 @@
 /**
- * DocMind — Document CRUD
+ * DocAIMind — Document CRUD
  *
  * High-level operations for creating, reading, and deleting documents
  * along with their chunk embeddings.

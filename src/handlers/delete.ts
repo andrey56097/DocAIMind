@@ -1,5 +1,5 @@
 /**
- * DocMind — Delete handlers
+ * DocAIMind — Delete handlers
  */
 
 import { state } from "../state";
