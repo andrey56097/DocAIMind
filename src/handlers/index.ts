@@ -36,10 +36,16 @@ export function initEventListeners(): void {
       await handleUpload(file);
     } catch (e) {
       hideProgress();
-      addMessage(
-        `Upload failed: ${e instanceof Error ? e.message : "Unknown error"}`,
-        "error",
-      );
+      const msg = e instanceof Error ? e.message : "Unknown error";
+      if (msg.includes("42501") || msg.includes("row-level security") || msg.includes("violates row-level security")) {
+        addMessage(
+          "Upload failed: You must be signed in to upload documents. " +
+          "Please sign in with Google using the button in the sidebar.",
+          "error",
+        );
+      } else {
+        addMessage(`Upload failed: ${msg}`, "error");
+      }
     }
   });
 

@@ -838,3 +838,112 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-dim);
 }
+
+/* ============================================
+   Auth Section
+   ============================================ */
+
+.auth-section {
+  border-bottom: 1px solid var(--color-border);
+  padding: 12px 16px;
+}
+
+.auth-logged-out,
+.auth-logged-in {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auth-logged-in.hidden,
+.auth-logged-out.hidden {
+  display: none;
+}
+
+.google-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.google-login-btn:hover {
+  background: var(--color-surface-hover);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-email {
+  font-size: 11px;
+  color: var(--color-text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.logout-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-dim);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  align-self: flex-start;
+}
+
+.logout-btn:hover {
+  border-color: #e55;
+  color: #e55;
+  background: rgba(238, 85, 85, 0.08);
+}
+
+/* ============================================
+   Auth styling tweaks for mobile
+   ============================================ */
+
+@media (max-width: 768px) {
+  .auth-section {
+    padding: 10px 12px;
+  }
+
+  .user-name {
+    font-size: 12px;
+  }
+}

@@ -1,95 +1,109 @@
 /**
- * DocAIMind — Supabase REST client
+ * DocAIMind — Supabase client
  *
- * Generic helpers for interacting with the Supabase REST API
- * (used instead of the supabase-js SDK).
+ * Single shared instance of @supabase/supabase-js used for all
+ * database, storage, and auth operations.
+ *
+ * Using the official client ensures correct JWT lifecycle, role
+ * switching (anon ↔ authenticated), and proper RLS enforcement.
  */
 
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from "../config";
+import { createClient, type User } from "@supabase/supabase-js";
+import { SUPABASE_URL } from "../config";
 
-/** Generic Supabase REST call — returns parsed JSON or undefined for empty responses. */
-export async function supabaseFetch<T>(
-  path: string,
-  opts: RequestInit = {},
-): Promise<T | undefined> {
-  const res = await fetch(`${SUPABASE_URL}${path}`, {
-    ...opts,
-    headers: {
-      "Content-Type": "application/json",
-      apikey: SUPABASE_ANON_KEY,
-      ...opts.headers,
-    },
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    let msg: string;
-    try {
-      msg = JSON.parse(text).message || text;
-    } catch {
-      msg = text;
-    }
-    throw new Error(msg);
-  }
-  const ct = res.headers.get("content-type") ?? "";
-  if (ct.includes("application/json") && res.status !== 204) {
-    return res.json();
-  }
-  return undefined;
+const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+if (!anonKey) throw new Error("VITE_SUPABASE_ANON_KEY is not set");
+
+const supabase = createClient(SUPABASE_URL, anonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    flowType: "pkce",
+  },
+});
+
+// ============================================
+// Database
+// ============================================
+
+/** Raw Supabase client instance (for advanced use cases). */
+export { supabase };
+
+// ============================================
+// Auth
+// ============================================
+
+let cachedUser: User | null = null;
+
+/** Try to restore an existing session on page load. */
+export async function restoreSession(): Promise<User | null> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  cachedUser = session?.user ?? null;
+  return cachedUser;
 }
 
-/** Supabase insert/update with return value. */
-export async function supabaseApi<T>(
-  method: string,
-  path: string,
-  body?: unknown,
-): Promise<T> {
-  const res = await fetch(`${SUPABASE_URL}${path}`, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      apikey: SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      Prefer: "return=representation",
+/** Sign in with Google — opens Supabase-hosted OAuth flow. */
+export async function signInWithGoogle(): Promise<void> {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: window.location.origin,
     },
-    body: body ? JSON.stringify(body) : undefined,
   });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`API error (${res.status}): ${text}`);
-  }
-  return res.json();
+  if (error) throw error;
 }
 
-/** Upload a raw file to Supabase Storage. */
-export async function uploadFileToStorage(
+/** Sign out the current user. */
+export async function signOut(): Promise<void> {
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
+  cachedUser = null;
+}
+
+/** Get the cached user (after restoreSession). */
+export function getUser(): User | null {
+  return cachedUser;
+}
+
+/** Listen for auth state changes (login / logout across tabs). */
+export function onAuthStateChange(
+  cb: (user: User | null) => void,
+): () => void {
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((event, session) => {
+    const user = session?.user ?? null;
+    if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") cachedUser = user;
+    else if (event === "SIGNED_OUT") cachedUser = null;
+    cb(user);
+  });
+  return () => subscription.unsubscribe();
+}
+
+// ============================================
+// Storage
+// ============================================
+
+const STORAGE_BUCKET = "documents";
+
+/** Upload a file to Supabase Storage. */
+export async function uploadFile(
   file: File,
   filePath: string,
 ): Promise<void> {
-  const res = await fetch(
-    `${SUPABASE_URL}/storage/v1/object/documents/${filePath}`,
-    {
-      method: "POST",
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      },
-      body: file,
-    },
-  );
-  if (!res.ok) throw new Error(`Upload failed: ${await res.text()}`);
+  const { error } = await supabase.storage
+    .from(STORAGE_BUCKET)
+    .upload(filePath, file, { upsert: true });
+  if (error) throw new Error(`Upload failed: ${error.message}`);
 }
 
-/** Delete a file from Supabase Storage (best-effort). */
-export async function deleteFileFromStorage(filePath: string): Promise<void> {
-  try {
-    await fetch(`${SUPABASE_URL}/storage/v1/object/documents/${filePath}`, {
-      method: "DELETE",
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      },
-    });
-  } catch {
-    // best-effort
-  }
+/** Delete a file from Supabase Storage. */
+export async function deleteFile(filePath: string): Promise<void> {
+  const { error } = await supabase.storage
+    .from(STORAGE_BUCKET)
+    .remove([filePath]);
+  if (error) console.error("Storage delete error:", error.message);
 }

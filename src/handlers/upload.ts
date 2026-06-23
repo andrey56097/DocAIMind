@@ -2,7 +2,7 @@
  * DocAIMind — Upload handler
  */
 
-import { uploadFileToStorage } from "../services/supabase";
+import { uploadFile } from "../services/supabase";
 import { extractFileText, cleanText } from "../services/pdf";
 import { createDocumentWithChunks } from "../services/documents";
 import { refreshDocuments } from "../handlers_init";
@@ -13,7 +13,7 @@ export async function handleUpload(file: File): Promise<void> {
   const filePath = `${Date.now()}_${file.name}`;
 
   setProgress(10, "Uploading to storage...");
-  await uploadFileToStorage(file, filePath);
+  await uploadFile(file, filePath);
 
   setProgress(20, "Extracting text...");
   const rawText = await extractFileText(file);

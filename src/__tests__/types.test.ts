@@ -21,11 +21,13 @@ describe("type shapes", () => {
 
   it("AppState has correct default shape", () => {
     const state: AppState = {
+      user: null,
       documents: [],
       selectedDocumentIds: new Set(),
       accumulatedUsage: { totalTokens: 0, totalCost: 0 },
       questionCount: 0,
       isLoading: false,
+      isAuthReady: false,
     };
     expect(state.documents).toHaveLength(0);
     expect(state.isLoading).toBe(false);

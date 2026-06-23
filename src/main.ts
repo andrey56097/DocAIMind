@@ -4,15 +4,14 @@
  */
 
 import { initEventListeners } from "./handlers";
-import { refreshDocuments } from "./handlers_init";
+import { initAuth } from "./handlers/auth";
 
 async function init(): Promise<void> {
+  // Auth first — restores session, syncs user, fetches docs if logged in
+  await initAuth();
+
+  // Wire up event handlers (upload, ask, delete, sidebar)
   initEventListeners();
-  try {
-    await refreshDocuments();
-  } catch (e) {
-    console.error("Init error:", e);
-  }
 }
 
 init();

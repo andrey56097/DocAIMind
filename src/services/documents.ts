@@ -6,9 +6,10 @@
  */
 
 import type { AppDocument, AnswerResult } from "../types";
-import { supabaseFetch, supabaseApi, deleteFileFromStorage } from "./supabase";
+import { supabase, deleteFile } from "./supabase";
 import { openaiEmbedding, askGPT } from "./openai";
 import { cosineSimilarity, chunkText, simpleEmbedding } from "../embeddings";
+import { state } from "../state";
 
 // ============================================
 // Create
@@ -25,12 +26,22 @@ export async function createDocumentWithChunks(
   onProgress?: (done: number, total: number) => void,
 ): Promise<{ docId: string; totalChunks: number; totalTokens: number }> {
   // Create document
-  const doc = await supabaseApi<AppDocument | AppDocument[]>(
-    "POST",
-    "/rest/v1/documents",
-    { title, file_path: filePath, file_size: fileSize },
-  );
-  const docId = ((doc as any)[0]?.id ?? (doc as any).id) as string;
+  const payload: Record<string, unknown> = {
+    title,
+    file_path: filePath,
+    file_size: fileSize,
+  };
+  if (state.user?.id) {
+    payload.user_id = state.user.id;
+  }
+
+  const { data: docData, error: docError } = await supabase
+    .from("documents")
+    .insert(payload)
+    .select()
+    .single();
+  if (docError) throw new Error(docError.message);
+  const docId = docData.id;
 
   // Chunk
   const chunks = chunkText(cleanText);
@@ -49,12 +60,15 @@ export async function createDocumentWithChunks(
       } catch {
         embedding = simpleEmbedding(text);
       }
-      await supabaseApi("POST", "/rest/v1/chunks", {
-        document_id: docId,
-        content: text,
-        embedding,
-        order: i,
-      });
+      const { error: chunkError } = await supabase
+        .from("chunks")
+        .insert({
+          document_id: docId,
+          content: text,
+          embedding,
+          order: i,
+        });
+      if (chunkError) console.error(`Chunk ${i} failed:`, chunkError.message);
     } catch (e) {
       console.error(`Chunk ${i} failed:`, e);
     }
@@ -69,11 +83,12 @@ export async function createDocumentWithChunks(
 
 /** Fetch all documents from Supabase. */
 export async function fetchDocuments(): Promise<AppDocument[]> {
-  return (
-    (await supabaseFetch<AppDocument[]>(
-      "/rest/v1/documents?order=created_at.desc",
-    )) ?? []
-  );
+  const { data, error } = await supabase
+    .from("documents")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data ?? [];
 }
 
 // ============================================
@@ -85,18 +100,19 @@ export async function deleteDocument(
   id: string,
   filePath: string,
 ): Promise<void> {
-  await deleteFileFromStorage(filePath);
+  await deleteFile(filePath);
 
-  try {
-    await supabaseFetch(`/rest/v1/chunks?document_id=eq.${id}`, {
-      method: "DELETE",
-    });
-  } catch {}
-  try {
-    await supabaseFetch(`/rest/v1/documents?id=eq.${id}`, {
-      method: "DELETE",
-    });
-  } catch {}
+  const { error: chunksError } = await supabase
+    .from("chunks")
+    .delete()
+    .eq("document_id", id);
+  if (chunksError) console.error("Delete chunks error:", chunksError.message);
+
+  const { error: docError } = await supabase
+    .from("documents")
+    .delete()
+    .eq("id", id);
+  if (docError) console.error("Delete document error:", docError.message);
 }
 
 // ============================================
@@ -133,12 +149,15 @@ export async function askQuestion(
   const questionVec = await openaiEmbedding(question);
   const embedTokens = Math.ceil(question.length / 4);
 
-  // Fetch chunks
-  const allChunks =
-    (await supabaseFetch<any[]>(
-      "/rest/v1/chunks?select=id,content,document_id,embedding,order",
-    )) ?? [];
-  const chunks = allChunks.filter((c) => docIds.includes(c.document_id));
+  // Fetch all chunks
+  const { data: allChunks, error: fetchError } = await supabase
+    .from("chunks")
+    .select("id,content,document_id,embedding,order");
+  if (fetchError) throw fetchError;
+
+  const chunks = (allChunks ?? []).filter((c: any) =>
+    docIds.includes(c.document_id),
+  );
 
   if (chunks.length === 0) {
     return {
@@ -148,19 +167,19 @@ export async function askQuestion(
     };
   }
 
-  // Score
-  const scored = chunks.map((c) => ({
+  // Score by cosine similarity
+  const scored = chunks.map((c: any) => ({
     ...c,
     score: cosineSimilarity(questionVec, c.embedding),
   }));
-  scored.sort((a, b) => b.score - a.score);
+  scored.sort((a: any, b: any) => b.score - a.score);
   const top = scored.slice(0, 5);
 
   // Build context
   const docMap = new Map(documents.map((d) => [d.id, d]));
   const context = top
     .map(
-      (c, i) =>
+      (c: any, i: number) =>
         `[Source ${i + 1}: ${docMap.get(c.document_id)?.title ?? "Unknown"}]\n${c.content}`,
     )
     .join("\n\n---\n\n");
@@ -178,12 +197,13 @@ export async function askQuestion(
 
   // Deduplicate sources
   const seen = new Set<string>();
-  const sources = [];
+  const sources: { id: string; title: string; file_path: string }[] = [];
   for (const c of top) {
     if (!seen.has(c.document_id)) {
       seen.add(c.document_id);
       const d = docMap.get(c.document_id);
-      if (d) sources.push({ id: d.id, title: d.title, file_path: d.file_path });
+      if (d)
+        sources.push({ id: d.id, title: d.title, file_path: d.file_path });
     }
   }
 
