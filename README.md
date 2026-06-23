@@ -154,6 +154,7 @@ supabase migration up
 - **🔍 Semantic search** — questions are matched against document chunks using cosine similarity
 - **🤖 AI answers** — GPT-4o-mini answers with source citations
 - **💰 Cost tracking** — per-question token usage and cost display
+- **📊 Persistent usage stats** — per-user AI usage (tokens, cost, question count) survives page reloads and sessions
 - **📱 Responsive** — works on desktop and mobile
 
 ---

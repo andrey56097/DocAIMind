@@ -11,6 +11,7 @@ import {
   updateUsageStats,
 } from "../ui";
 import { askQuestion as askQuestionApi } from "../services/documents";
+import { updateUsage } from "../services/usage";
 
 /** Handle a user question: get answer, update usage, display result. */
 export async function handleAsk(question: string): Promise<void> {
@@ -35,6 +36,17 @@ export async function handleAsk(question: string): Promise<void> {
     );
     state.questionCount++;
     updateUsageStats();
+
+    // Persist usage to Supabase for logged-in users
+    if (state.user?.id) {
+      console.log("handleAsk: saving usage for user", state.user.id);
+      updateUsage(
+        state.user.id,
+        state.accumulatedUsage.totalTokens,
+        state.accumulatedUsage.totalCost,
+        state.questionCount,
+      ).catch(console.error);
+    }
 
     addMessage(res.answer, "ai", res.sources, res.usage.totalCost);
   } catch (e) {

@@ -6,7 +6,7 @@
 
 import { state } from "../state";
 import { dom } from "../dom";
-import { renderDocuments, addMessage } from "../ui";
+import { renderDocuments, addMessage, updateUsageStats } from "../ui";
 import {
   restoreSession,
   signInWithGoogle,
@@ -15,6 +15,31 @@ import {
   getUser,
 } from "../services/supabase";
 import { refreshDocuments } from "../handlers_init";
+import { fetchUsage } from "../services/usage";
+
+/** Load persisted AI usage stats for the current user into state. */
+async function loadUsage(): Promise<void> {
+  if (!state.user?.id) {
+    console.log("loadUsage: no user yet");
+    return;
+  }
+  console.log("loadUsage: fetching for user", state.user.id);
+  const usage = await fetchUsage(state.user.id);
+  console.log("loadUsage: got", usage);
+  if (usage) {
+    state.accumulatedUsage = {
+      totalTokens: usage.total_tokens,
+      totalCost: usage.total_cost,
+    };
+    state.questionCount = usage.question_count;
+    console.log("loadUsage: set state to", state.accumulatedUsage, state.questionCount);
+  } else {
+    state.accumulatedUsage = { totalTokens: 0, totalCost: 0 };
+    state.questionCount = 0;
+    console.log("loadUsage: no record yet, set to 0");
+  }
+  updateUsageStats();
+}
 
 /** Map Supabase User to our AppUser */
 function syncUserToState() {
@@ -66,9 +91,10 @@ export async function initAuth(): Promise<void> {
   state.isAuthReady = true;
   renderAuth();
 
-  // If user is already logged in, fetch their docs
+  // If user is already logged in, fetch their docs and usage
   if (state.user) {
     try {
+      await loadUsage();
       await refreshDocuments();
     } catch (e) {
       console.error("Failed to fetch docs after auth restore:", e);
@@ -102,27 +128,26 @@ export async function initAuth(): Promise<void> {
   dom.logoutBtn.addEventListener("click", async () => {
     try {
       await signOut();
-      state.documents = [];
-      state.selectedDocumentIds.clear();
-      state.accumulatedUsage = { totalTokens: 0, totalCost: 0 };
-      state.questionCount = 0;
       syncUserToState();
       renderAuth();
-      renderDocuments();
     } catch (e) {
       console.error("Sign-out failed:", e);
     }
   });
 
   // Listen for auth state changes (OAuth redirect, cross-tab)
-  onAuthStateChange((user) => {
+  onAuthStateChange(async (user) => {
     syncUserToState();
     renderAuth();
     if (user) {
+      await loadUsage();
       refreshDocuments().catch(console.error);
     } else {
       state.documents = [];
       state.selectedDocumentIds.clear();
+      state.accumulatedUsage = { totalTokens: 0, totalCost: 0 };
+      state.questionCount = 0;
+      updateUsageStats();
       renderDocuments();
     }
   });

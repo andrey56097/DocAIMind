@@ -34,6 +34,17 @@ supabase/
 - Run `npx tsc --noEmit` after any code changes
 - Environment variables come from `.env` (gitignored), documented in `.env.production.example`
 
+## Local Supabase Setup
+
+### Applying a new migration
+```bash
+cat supabase/migrations/<file>.sql | docker exec -i supabase_db_DocMind psql -U postgres -d postgres
+```
+
+**Always include in the migration:**
+1. `GRANT ALL ON public.<table_name> TO authenticated;` — never `anon` (that key is client-side)
+2. `ALTER TABLE ... ENABLE ROW LEVEL SECURITY;` + `USING (auth.uid() = user_id)` policy
+
 ## Code Style
 - TypeScript, strict mode
 - Single-responsibility files under handlers/, services/, ui/
