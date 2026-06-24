@@ -43,6 +43,12 @@ export function initEventListeners(): void {
           "Upload failed: You must be signed in to upload documents.",
           "error",
         );
+      } else if (msg.includes("Invalid key") || msg.includes("Invalid file")) {
+        addMessage("Upload failed: Unsupported file name. Try renaming the file.", "error");
+      } else if (msg.includes("network") || msg.includes("Network") || msg.includes("timeout")) {
+        addMessage("Upload failed: Network issue. Check your connection and try again.", "error");
+      } else if (msg.includes("413") || msg.includes("too large")) {
+        addMessage("Upload failed: File is too large (max 10 MB).", "error");
       } else {
         addMessage("Upload failed. Please try again.", "error");
       }

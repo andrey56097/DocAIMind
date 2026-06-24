@@ -10,17 +10,31 @@ import { addMessage, setProgress, hideProgress } from "../ui";
 
 /** Handle a file upload: upload to storage, extract text, chunk, and embed. */
 export async function handleUpload(file: File): Promise<void> {
-  const filePath = `${Date.now()}_${file.name}`;
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const filePath = `${Date.now()}_${safeName}`;
 
   setProgress(10, "Uploading to storage...");
-  await uploadFile(file, filePath);
+  try {
+    await uploadFile(file, filePath);
+  } catch (e) {
+    console.error("Upload storage error:", e);
+    throw e;
+  }
 
   setProgress(20, "Extracting text...");
-  const rawText = await extractFileText(file);
+  let rawText: string;
+  try {
+    rawText = await extractFileText(file);
+  } catch (e) {
+    console.error("PDF extraction failed:", e instanceof Error ? e.message : e);
+    throw new Error(
+      "Could not read this PDF on your device. Try using a desktop browser.",
+    );
+  }
   const clean = cleanText(rawText);
 
   if (clean.length < 50)
-    throw new Error("Could not extract meaningful text");
+    throw new Error("Could not extract meaningful text from this PDF.");
 
   setProgress(30, "Saving document...");
   const { totalChunks } = await createDocumentWithChunks(
