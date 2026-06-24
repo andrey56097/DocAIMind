@@ -53,10 +53,7 @@ export async function updateUsage(
     .eq("user_id", userId)
     .maybeSingle();
 
-  console.log("updateUsage: userId=%s tokens=%d cost=%f count=%d", userId, tokens, cost, questionCount);
-
   if (existing) {
-    console.log("updateUsage: updating existing record", existing.id);
     const { error } = await supabase
       .from(USAGE_TABLE)
       .update({
@@ -69,11 +66,8 @@ export async function updateUsage(
 
     if (error) {
       console.error("Failed to update usage:", error.message);
-    } else {
-      console.log("updateUsage: update succeeded");
     }
   } else {
-    console.log("updateUsage: inserting new record for user", userId);
     const { error } = await supabase.from(USAGE_TABLE).insert({
       user_id: userId,
       total_tokens: tokens,
@@ -83,8 +77,6 @@ export async function updateUsage(
 
     if (error) {
       console.error("Failed to insert usage:", error.message);
-    } else {
-      console.log("updateUsage: insert succeeded");
     }
   }
 }

@@ -39,7 +39,6 @@ export async function handleAsk(question: string): Promise<void> {
 
     // Persist usage to Supabase for logged-in users
     if (state.user?.id) {
-      console.log("handleAsk: saving usage for user", state.user.id);
       updateUsage(
         state.user.id,
         state.accumulatedUsage.totalTokens,

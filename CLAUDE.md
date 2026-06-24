@@ -33,6 +33,7 @@ supabase/
 - Keep README.md accurate: feature list, project structure, architecture, and setup instructions
 - Run `npx tsc --noEmit` after any code changes
 - Environment variables come from `.env` (gitignored), documented in `.env.production.example`
+- When I type **"commit"**, stage all changes, prepare a commit with a descriptive English message summarizing the changes, show me the summary, and ask for confirmation before committing and pushing.
 
 ## Local Supabase Setup
 

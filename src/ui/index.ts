@@ -6,6 +6,13 @@ import type { Source } from "../types";
 import { state } from "../state";
 import { dom } from "../dom";
 
+/** Close sidebar on mobile. */
+function closeSidebarIfMobile(): void {
+  if (window.innerWidth <= 768) {
+    dom.sidebar.classList.remove("open");
+  }
+}
+
 // ============================================
 // Helpers
 // ============================================
@@ -82,6 +89,7 @@ export function renderDocuments(): void {
     else state.selectedDocumentIds.add(id);
     renderDocuments();
     updateChatSubtitle();
+    closeSidebarIfMobile();
   };
 
   list.addEventListener("click", handler);
@@ -198,4 +206,13 @@ export function updateUsageStats(): void {
     state.accumulatedUsage.totalTokens.toLocaleString();
   dom.totalCost.textContent = `$${state.accumulatedUsage.totalCost.toFixed(6)}`;
   dom.questionCount.textContent = String(state.questionCount);
+}
+
+/** Show/hide the login hint in the welcome message based on auth state. */
+export function updateWelcomeAuthHint(): void {
+  if (!state.user) {
+    dom.welcomeMessage.classList.add("logged-out");
+  } else {
+    dom.welcomeMessage.classList.remove("logged-out");
+  }
 }

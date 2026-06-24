@@ -11,6 +11,7 @@ export const dom = {
   authLoggedOut: $("auth-logged-out"),
   authLoggedIn: $("auth-logged-in"),
   googleLoginBtn: $("google-login-btn") as HTMLButtonElement,
+  guestLoginBtn: $("guest-login-btn") as HTMLButtonElement,
   logoutBtn: $("logout-btn") as HTMLButtonElement,
   userAvatar: $("user-avatar"),
   userName: $("user-name"),

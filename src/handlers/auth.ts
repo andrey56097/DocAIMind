@@ -6,7 +6,7 @@
 
 import { state } from "../state";
 import { dom } from "../dom";
-import { renderDocuments, addMessage, updateUsageStats } from "../ui";
+import { renderDocuments, addMessage, updateUsageStats, updateWelcomeAuthHint } from "../ui";
 import {
   restoreSession,
   signInWithGoogle,
@@ -19,24 +19,17 @@ import { fetchUsage } from "../services/usage";
 
 /** Load persisted AI usage stats for the current user into state. */
 async function loadUsage(): Promise<void> {
-  if (!state.user?.id) {
-    console.log("loadUsage: no user yet");
-    return;
-  }
-  console.log("loadUsage: fetching for user", state.user.id);
+  if (!state.user?.id) return;
   const usage = await fetchUsage(state.user.id);
-  console.log("loadUsage: got", usage);
   if (usage) {
     state.accumulatedUsage = {
       totalTokens: usage.total_tokens,
       totalCost: usage.total_cost,
     };
     state.questionCount = usage.question_count;
-    console.log("loadUsage: set state to", state.accumulatedUsage, state.questionCount);
   } else {
     state.accumulatedUsage = { totalTokens: 0, totalCost: 0 };
     state.questionCount = 0;
-    console.log("loadUsage: no record yet, set to 0");
   }
   updateUsageStats();
 }
@@ -76,11 +69,13 @@ function renderAuth() {
     dom.questionInput.disabled = false;
     dom.sendButton.disabled = false;
   } else {
+    // Show sidebar login, hide welcome login if sidebar is visible (desktop)
     loggedOut.classList.remove("hidden");
     loggedIn.classList.add("hidden");
     dom.questionInput.disabled = true;
     dom.sendButton.disabled = true;
   }
+  updateWelcomeAuthHint();
 }
 
 /** Initialise auth — restore session, wire up listeners, sync state. */
@@ -101,15 +96,15 @@ export async function initAuth(): Promise<void> {
     }
   }
 
-  // Wire up login button
-  dom.googleLoginBtn.addEventListener("click", async () => {
-    dom.googleLoginBtn.disabled = true;
-    dom.googleLoginBtn.textContent = "Redirecting to Google...";
+  // Shared Google sign-in handler
+  async function handleGoogleLogin(btn: HTMLButtonElement) {
+    btn.disabled = true;
+    btn.textContent = "Redirecting to Google...";
     try {
       await signInWithGoogle();
     } catch (e) {
-      dom.googleLoginBtn.disabled = false;
-      dom.googleLoginBtn.textContent = "Sign in with Google";
+      btn.disabled = false;
+      btn.textContent = "Sign in with Google";
       const msg = e instanceof Error ? e.message : "Sign-in failed";
       console.error("Google sign-in failed:", msg);
       if (
@@ -122,13 +117,26 @@ export async function initAuth(): Promise<void> {
         );
       }
     }
-  });
+  }
+
+  // Wire up welcome message login button
+  const welcomeBtn = document.getElementById("welcome-google-login-btn") as HTMLButtonElement | null;
+  if (welcomeBtn) {
+    welcomeBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      handleGoogleLogin(welcomeBtn);
+    });
+  }
 
   // Wire up logout button
   dom.logoutBtn.addEventListener("click", async () => {
     try {
       await signOut();
       syncUserToState();
+      // Clear messages container, keep welcome message
+      dom.messagesContainer.innerHTML = "";
+      dom.messagesContainer.appendChild(dom.welcomeMessage);
+      dom.welcomeMessage.style.display = "";
       renderAuth();
     } catch (e) {
       console.error("Sign-out failed:", e);
