@@ -34,6 +34,7 @@ supabase/
 - **Before every commit:** update README.md if the changes add, remove, or modify any user-facing feature, project structure, or setup instructions
 - When I type **"commit"**, stage all changes, first update README.md if needed, then prepare a commit with a descriptive English message summarizing the changes, show me the summary, and ask for confirmation before committing and pushing.
 - **Error messages shown to users must never contain raw error text, column names, SQL details, or internal implementation info.** Always log the real error to `console.error` and show a generic, safe message (e.g. "Something went wrong. Please try again.").
+- When I write **"task"** at the start of a message — treat it as a command: implement the request, then suggest a verification step (show diff, run tsc, ask to test or commit)
 
 ## Supabase
 
