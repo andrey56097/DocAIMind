@@ -35,6 +35,12 @@ supabase/
 - Environment variables come from `.env` (gitignored), documented in `.env.production.example`
 - When I type **"commit"**, stage all changes, prepare a commit with a descriptive English message summarizing the changes, show me the summary, and ask for confirmation before committing and pushing.
 
+## Supabase
+
+### Site URL (local + production)
+Keep **Site URL** = `https://doc-ai-mind.vercel.app` in Supabase Dashboard → Authentication → Settings.  
+Add `http://localhost:5173` to **Additional redirect URLs** — then both work without manual switching.
+
 ## Local Supabase Setup
 
 ### Applying a new migration
