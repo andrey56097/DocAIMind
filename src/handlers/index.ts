@@ -6,7 +6,7 @@
 
 import { state } from "../state";
 import { dom } from "../dom";
-import { addMessage, setDeleteDocumentHandler, hideProgress } from "../ui";
+import { addMessage, setDeleteDocumentHandler, hideProgress, hideUploadLoading } from "../ui";
 import { handleUpload } from "./upload";
 import { handleDeleteDocument, handleDeleteAll } from "./delete";
 import { handleAsk } from "./ask";
@@ -36,6 +36,7 @@ export function initEventListeners(): void {
       await handleUpload(file);
     } catch (e) {
       hideProgress();
+      hideUploadLoading();
       const msg = e instanceof Error ? e.message : "Unknown error";
       console.error("Upload failed:", msg);
       if (msg.includes("42501") || msg.includes("row-level security") || msg.includes("violates row-level security")) {

@@ -6,10 +6,11 @@ import { uploadFile } from "../services/supabase";
 import { extractFileText, cleanText } from "../services/pdf";
 import { createDocumentWithChunks } from "../services/documents";
 import { refreshDocuments } from "../handlers_init";
-import { addMessage, setProgress, hideProgress } from "../ui";
+import { addMessage, setProgress, hideProgress, showUploadLoading, hideUploadLoading } from "../ui";
 
 /** Handle a file upload: upload to storage, extract text, chunk, and embed. */
 export async function handleUpload(file: File): Promise<void> {
+  showUploadLoading();
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
   const filePath = `${Date.now()}_${safeName}`;
 
@@ -48,6 +49,7 @@ export async function handleUpload(file: File): Promise<void> {
     },
   );
 
+  hideUploadLoading();
   setProgress(100, `${totalChunks} chunks created!`);
   setTimeout(hideProgress, 1500);
 

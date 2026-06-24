@@ -197,6 +197,20 @@ export function hideProgress(): void {
   dom.progressFill.style.width = "0%";
 }
 
+/** Show spinner on the upload button. */
+export function showUploadLoading(): void {
+  if (dom.uploadBtn) dom.uploadBtn.style.display = "none";
+  dom.uploadSpinner.classList.remove("hidden");
+  dom.fileInput.disabled = true;
+}
+
+/** Hide spinner on the upload button. */
+export function hideUploadLoading(): void {
+  dom.uploadSpinner.classList.add("hidden");
+  if (dom.uploadBtn) dom.uploadBtn.style.display = "";
+  dom.fileInput.disabled = false;
+}
+
 // ============================================
 // Usage stats
 // ============================================

@@ -130,6 +130,39 @@ body {
   font-weight: 300;
 }
 
+/* Upload spinner — replaces upload button while loading */
+.upload-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  box-sizing: border-box;
+}
+
+.upload-spinner.hidden {
+  display: none;
+}
+
+.upload-spinner .spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.upload-spinner .spinner-text {
+  font-size: 14px;
+  color: var(--color-text-dim);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .upload-progress {
   margin-top: 12px;
   display: flex;

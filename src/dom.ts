@@ -22,6 +22,8 @@ export const dom = {
   uploadProgress: $("upload-progress"),
   progressFill: document.querySelector(".progress-fill") as HTMLElement,
   progressText: document.querySelector(".progress-text") as HTMLElement,
+  uploadSpinner: $("upload-spinner"),
+  uploadBtn: document.querySelector(".upload-btn") as HTMLElement,
 
   // Documents
   documentsList: $("documents-list"),
