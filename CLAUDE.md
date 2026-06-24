@@ -29,11 +29,10 @@ supabase/
 ```
 
 ## Workflow Rules
-- When new features are added, **update README.md** to reflect the changes
-- Keep README.md accurate: feature list, project structure, architecture, and setup instructions
 - Run `npx tsc --noEmit` after any code changes
 - Environment variables come from `.env` (gitignored), documented in `.env.production.example`
-- When I type **"commit"**, stage all changes, prepare a commit with a descriptive English message summarizing the changes, show me the summary, and ask for confirmation before committing and pushing.
+- **Before every commit:** update README.md if the changes add, remove, or modify any user-facing feature, project structure, or setup instructions
+- When I type **"commit"**, stage all changes, first update README.md if needed, then prepare a commit with a descriptive English message summarizing the changes, show me the summary, and ask for confirmation before committing and pushing.
 
 ## Supabase
 

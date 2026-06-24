@@ -155,7 +155,9 @@ supabase migration up
 - **🤖 AI answers** — GPT-4o-mini answers with source citations
 - **💰 Cost tracking** — per-question token usage and cost display
 - **📊 Persistent usage stats** — per-user AI usage (tokens, cost, question count) survives page reloads and sessions
-- **📱 Responsive** — works on desktop and mobile
+- **🔐 Google OAuth** — sign in with Google, per-user document isolation
+- **🔄 Guest mode** — optional local development without authentication
+- **📱 Mobile-first** — responsive layout with collapsible sidebar, auto-close on selection, keyboard-safe viewport (100dvh), and safe-area support
 
 ---
 
