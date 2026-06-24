@@ -33,12 +33,33 @@ supabase/
 - Environment variables come from `.env` (gitignored), documented in `.env.production.example`
 - **Before every commit:** update README.md if the changes add, remove, or modify any user-facing feature, project structure, or setup instructions
 - When I type **"commit"**, stage all changes, first update README.md if needed, then prepare a commit with a descriptive English message summarizing the changes, show me the summary, and ask for confirmation before committing and pushing.
+- **Error messages shown to users must never contain raw error text, column names, SQL details, or internal implementation info.** Always log the real error to `console.error` and show a generic, safe message (e.g. "Something went wrong. Please try again.").
 
 ## Supabase
 
 ### Site URL (local + production)
 Keep **Site URL** = `https://doc-ai-mind.vercel.app` in Supabase Dashboard → Authentication → Settings.  
 Add `http://localhost:5173` to **Additional redirect URLs** — then both work without manual switching.
+
+### When code needs a new column that doesn't exist in cloud
+
+If the cloud Supabase project already has the table (created by a previous migration) and a new column is needed:
+
+1. **Create a new migration file** — do NOT modify the old one (it's already applied)
+2. **Apply locally**: `cat supabase/migrations/<file>.sql | docker exec -i supabase_db_DocMind psql -U postgres -d postgres`
+3. **Apply to cloud**: either `npx supabase db push` or run the SQL in Supabase Dashboard → SQL Editor
+
+Common example — adding `user_id` to `documents`:
+```sql
+alter table public.documents add column user_id uuid references auth.users(id) on delete cascade;
+create index on public.documents(user_id);
+```
+
+### Pushing migrations to cloud
+```bash
+npx supabase db push
+```
+If it says "Remote database is up to date" but the column is missing, the migration file might not be tracked — run the SQL manually in the Supabase SQL Editor.
 
 ## Local Supabase Setup
 

@@ -50,10 +50,9 @@ export async function handleAsk(question: string): Promise<void> {
     addMessage(res.answer, "ai", res.sources, res.usage.totalCost);
   } catch (e) {
     removeTypingIndicator();
-    addMessage(
-      `Error: ${e instanceof Error ? e.message : "Something went wrong"}`,
-      "error",
-    );
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    console.error("Ask failed:", msg);
+    addMessage("Something went wrong. Please try again.", "error");
   } finally {
     state.isLoading = false;
     dom.questionInput.disabled = false;

@@ -37,14 +37,14 @@ export function initEventListeners(): void {
     } catch (e) {
       hideProgress();
       const msg = e instanceof Error ? e.message : "Unknown error";
+      console.error("Upload failed:", msg);
       if (msg.includes("42501") || msg.includes("row-level security") || msg.includes("violates row-level security")) {
         addMessage(
-          "Upload failed: You must be signed in to upload documents. " +
-          "Please sign in with Google using the button in the sidebar.",
+          "Upload failed: You must be signed in to upload documents.",
           "error",
         );
       } else {
-        addMessage(`Upload failed: ${msg}`, "error");
+        addMessage("Upload failed. Please try again.", "error");
       }
     }
   });
